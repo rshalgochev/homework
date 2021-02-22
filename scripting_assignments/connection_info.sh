@@ -1,9 +1,15 @@
 #!/bin/bash
 
+
 #Set parameters
 filter=$1
 number=$2
 info=$3
+
+sorter(){
+	sort | uniq -c | sort | awk '{print $2}'
+}
+
 
 #Check count of accepted parameters
 if [ $# -ne 3 ]
@@ -33,23 +39,19 @@ then
 	exit 1
 fi
 
-#Check for package whios is installed on system
-dpkg --get-selections | grep whios &> /dev/null
-if [ ! "$?" ]
-then
-	sudo apt install -y whois
-fi
 i=1
 
 #Create list of unique connections
-ip_string=$(sudo netstat -tunapl | grep -i $filter | awk  ' {print $5}' | cut -d: -f1 | sort | uniq -c | sort | tail -n$number)
 
+ip_string=$(sudo netstat -tunapl | awk '$0~$filter {print $5}' | awk -F":" '{print $1}'| sorter | tail -n$number)
 
-for ip in $ip_string
-do
-	if [ $(expr $i % 2) -eq 0 ]
-	then 
-		whois "$ip" | grep -i "$info" | awk -F':' ' {print $2}' #Display information
-	fi
-	i=$(expr $i + 1)
-done
+echo $ip_string
+
+#for ip in $ip_string
+#do
+#	if [ $(expr $i % 2) -eq 0 ]
+#	then 
+#		whois "$ip" | grep -i "$info" | awk -F':' ' {print $2}' #Display information
+#	fi
+#	i=$(expr $i + 1)
+#done

@@ -7,7 +7,7 @@ number=$2
 info=$3
 
 sorter(){
-	sort | uniq -c | sort | awk '{print $2}'
+	sort | uniq -c | sort
 }
 
 
@@ -39,19 +39,20 @@ then
 	exit 1
 fi
 
-i=1
 
 #Create list of unique connections
 
-ip_string=$(sudo netstat -tunapl | awk '$0~$filter {print $5}' | awk -F":" '{print $1}'| sorter | tail -n$number)
 
-echo $ip_string
+ip_string=$(sudo netstat -tunapl | awk '$0~$filter {print $5}'  | awk -F":" '{print $1}'| sorter | awk '{print $2}' | tail -n$number)
 
-#for ip in $ip_string
-#do
-#	if [ $(expr $i % 2) -eq 0 ]
-#	then 
-#		whois "$ip" | grep -i "$info" | awk -F':' ' {print $2}' #Display information
-#	fi
-#	i=$(expr $i + 1)
-#done
+
+for ip in $ip_string
+do
+#	echo "$ip"
+	if [ "$ip" = "Address" ]
+	then 
+		continue
+	else
+		whois "$ip" | grep -i "$info" | awk -F':' ' {print $2}' #Display information
+	fi
+done

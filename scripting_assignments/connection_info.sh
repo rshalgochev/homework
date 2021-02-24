@@ -29,7 +29,7 @@ elif (echo "$number" | grep -qP '(\D+)')
 then 
 	echo "Number must be only digit!"
 	exit 1
-elif [ "$number" -gt 50 ] 
+elif [ "$number" -gt $(sudo netstat -tunapl | wc -l) ] 
 then 
 	echo "Your number is too big!" 2>&1
 elif [ ! "$info" ]
